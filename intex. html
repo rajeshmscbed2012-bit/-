@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>சத்துணவு பதிவேடு</title>
+
+<meta name="theme-color" content="#0a2463">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href='data:application/manifest+json;utf-8,{"name":"சத்துணவு பதிவேடு","short_name":"MDM App","display":"standalone","start_url":".","background_color":"#f0f4ff","theme_color":"#0a2463","icons":[{"src":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB5PSI1MCUiIHgtbWlkZGxlPSJ0cnVlIiBmb250LXNpemU9IjgwIj7wn42aPC90ZXh0Pjwvc3ZnPg==","sizes":"192x192","type":"image/svg+xml"}]}'>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+:root{ --bd:#0a2463;--bm:#1e4fc2;--bl:#3a86ff; --gr:#0d9e6e;--rd:#dc2626; --bg:#f0f4ff;--card:#fff;--tx:#0f172a;--mu:#64748b; --br:#dbe4ff;--ra:14px;--sh:0 4px 24px rgba(10,36,99,.10); } 
+*{box-sizing:border-box;margin:0;padding:0} 
+body{font-family:'Noto Sans Tamil',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overscroll-behavior-y:none} 
+.screen{display:none;min-height:100vh;animation:fi .3s ease} 
+.screen.active{display:flex;flex-direction:column} 
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} 
+
+/* LOGIN */ 
+#ls{background:linear-gradient(145deg,#0a2463,#1e4fc2,#3a86ff);align-items:center;justify-content:center;padding:20px} 
+.lb{background:#fff;border-radius:24px;padding:32px 28px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(10,36,99,.3)} 
+.li{width:68px;height:68px;background:linear-gradient(135deg,var(--bd),var(--bl));border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:30px} 
+.lb h1{font-size:20px;font-weight:800;color:var(--bd);text-align:center} 
+.lb p{font-size:11px;color:var(--mu);text-align:center;margin-top:3px;margin-bottom:20px} 
+.rt{display:flex;gap:6px;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:18px} 
+.rb{flex:1;padding:8px;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--mu);background:transparent;transition:.2s} 
+.rb.on{background:#fff;color:var(--bd);box-shadow:0 2px 8px rgba(0,0,0,.1)} 
+.fg{margin-bottom:14px} 
+.fg label{display:block;font-size:12px;font-weight:700;color:var(--bd);margin-bottom:5px} 
+.fg input{width:100%;padding:11px 13px;border:2px solid var(--br);border-radius:10px;font-family:inherit;font-size:13px;outline:none;transition:.2s;background:#f8faff} 
+.fg input:focus{border-color:var(--bl);background:#fff} 
+.bl{width:100%;padding:13px;background:linear-gradient(135deg,var(--bd),var(--bm));color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(30,79,194,.4)} 
+
+/* APP */ 
+.ah{background:linear-gradient(135deg,var(--bd),var(--bm));color:#fff;padding:0 16px;display:flex;align-items:center;gap:10px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(10,36,99,.3)} 
+.at{font-size:15px;font-weight:800;flex:1}.as{font-size:10px;opacity:.8;display:block} 
+.hb{background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center} 
+.ab{flex:1;padding:10px 2px;display:flex;flex-direction:column;align-items:center;cursor:pointer;border:none;background:transparent;font-family:inherit;color:var(--mu);font-size:9px;gap:2px} 
+.ni{font-size:18px}.ab.on{color:var(--bm)} 
+.nb{background:#fff;border-top:1px solid var(--br);display:flex;position:fixed;bottom:0;left:0;right:0;z-index:99;box-shadow:0 -2px 12px rgba(10,36,99,.08)} 
+.body{flex:1;padding:14px;max-width:900px;margin:0 auto;width:100%;padding-bottom:90px} 
+
+/* CARDS */ 
+.card{background:var(--card);border-radius:var(--ra);padding:16px;box-shadow:var(--sh);margin-bottom:12px;border:1px solid rgba(219,228,255,.6)} 
+.st{font-size:11px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--br)} 
+
+/* BANNER */ 
+.ban{background:linear-gradient(135deg,var(--bd),var(--bl));color:#fff;border-radius:16px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden} 
+.ban::after{content:'🍚';position:absolute;right:12px;bottom:-8px;font-size:56px;opacity:.12} 
+.ban h2{font-size:17px;font-weight:800}.ban p{font-size:11px;opacity:.85;margin-top:3px} 
+.bdg{display:inline-block;background:rgba(255,255,255,.2);border-radius:6px;padding:2px 10px;font-size:10px;margin-top:6px} 
+
+/* STATS */ 
+.sg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px} 
+.sc{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:var(--sh);border:1px solid rgba(219,228,255,.6);cursor:pointer} 
+.si{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 8px} 
+.sv{font-size:22px;font-weight:800;color:var(--bd)}.sl{font-size:10px;color:var(--mu);margin-top:2px} 
+
+/* ACTION */ 
+.ag{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px} 
+.an{padding:13px 10px;border:none;border-radius:12px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;color:#fff;display:flex;flex-direction:column;gap:5px;align-items:flex-start;box-shadow:0 4px 12px rgba(0,0,0,.15)} 
+.ai{font-size:22px} 
+
+/* STOCK DISPLAY */ 
+.stg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px} 
+.si2{border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border:1px solid} 
+.ok{background:#f0fdf4;border-color:#86efac} 
+.lo{background:#fef2f2;border-color:#fca5a5} 
+.wa{background:#fffbeb;border-color:#fcd34d} 
+.sn{font-size:12px;font-weight:700}.sv2{font-size:15px;font-weight:800} 
+.ok .sv2{color:var(--gr)}.lo .sv2{color:var(--rd)}.wa .sv2{color:#b45309} 
+.sa{font-size:9px;color:var(--rd);font-weight:700;margin-top:1px} 
+
+/* FORM */ 
+.fr{display:grid;gap:8px;margin-bottom:10px} 
+.c2{grid-template-columns:repeat(2,1fr)}.c3{grid-template-columns:repeat(3,1fr)} 
+.fgs label{display:block;font-size:10px;font-weight:700;color:var(--mu);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px} 
+.fgs input,.fgs select{width:100%;padding:9px 11px;border:2px solid var(--br);border-radius:9px;font-family:inherit;font-size:13px;color:var(--tx);outline:none;transition:.2s;background:#f8faff} 
+.fgs input:focus{border-color:var(--bl);background:#fff} 
+
+/* TABLES RESPONSIVE */
+.table-res { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }
+
+/* ENTRY TABLE ROWS */ 
+.etr td{padding:7px 6px;border-bottom:1px solid rgba(0,0,0,.05);vertical-align:middle; white-space:nowrap} 
+.etr:last-child td{border-bottom:none} 
+.etr td:first-child{padding-left:10px;font-size:12px;font-weight:700;color:var(--tx)} 
+.stk-val{font-size:13px;font-weight:800;color:var(--gr);text-align:center} 
+.stk-val.low{color:var(--rd)} 
+.rem-val{font-size:13px;font-weight:800;color:var(--bm);text-align:center} 
+.rem-val.low{color:var(--rd)} 
+.use-inp{width:100%;min-width:60px;padding:7px 8px;border:2px solid #fed7aa;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;text-align:center;color:#92400e;background:#fff8f0;outline:none} 
+.use-inp:focus{border-color:#c2410c;background:#fff} 
+
+/* STRIPS */ 
+.strip{border-radius:10px;padding:12px;margin-bottom:10px} 
+.gr-strip{background:#fff8f0;border:1px solid #fed7aa} 
+.mo-strip{background:#f0fdf4;border:1px solid #bbf7d0} 
+.strip-t{font-size:12px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap} 
+
+/* PREVIEW */ 
+.ps{border-radius:12px;overflow:hidden;margin-bottom:10px;border:1px solid} 
+.ph{padding:9px 14px;font-size:12px;font-weight:800} 
+.pb{padding:12px 14px} 
+.pr{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.04)} 
+.pr:last-child{border-bottom:none} 
+.pl{font-size:12px;color:var(--mu)}.pv{font-size:12px;font-weight:700} 
+.pv.hi{color:var(--bm);font-size:14px} 
+
+/* REPORT */ 
+.rf{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center} 
+.rf select{padding:9px 12px;border:2px solid var(--br);border-radius:9px;font-family:inherit;font-size:12px;background:#fff;outline:none} 
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px} 
+.chip{background:#fff;border:1px solid var(--br);border-radius:16px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--bd);white-space:nowrap} 
+.chip span{color:var(--bl)} 
+.tw{overflow-x:auto;border-radius:12px;border:1px solid var(--br); background:#fff; -webkit-overflow-scrolling:touch} 
+table{width:100%;border-collapse:collapse;min-width:max-content} 
+thead tr{background:linear-gradient(135deg,var(--bd),var(--bm))} 
+th{color:#fff;padding:10px 7px;font-size:10px;text-align:center;white-space:nowrap} 
+td{padding:9px 7px;font-size:11px;text-align:center;border-bottom:1px solid #f1f5f9;white-space:nowrap} 
+tr:nth-child(even) td{background:#f8faff} 
+tr:hover td{background:#eef2ff} 
+
+/* BAL CARD */ 
+.bc{border-radius:16px;padding:16px;margin-bottom:10px} 
+.bg2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px} 
+.bb{border-radius:10px;padding:10px;text-align:center} 
+.bv2{font-size:16px;font-weight:800;margin:4px 0} 
+.bn{font-size:10px;opacity:.85}.bu{font-size:9px;opacity:.7;margin-top:1px} 
+
+/* BTNS */ 
+.bp{background:linear-gradient(135deg,var(--bd),var(--bm));color:#fff;border:none;border-radius:11px;padding:12px 18px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;width:100%;box-shadow:0 4px 14px rgba(30,79,194,.3)} 
+.bs{background:#fff;color:var(--bd);border:2px solid var(--bl);border-radius:11px;padding:11px 18px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer} 
+.bg{background:linear-gradient(135deg,#065f46,var(--gr));color:#fff;border:none;border-radius:11px;padding:12px 18px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;width:100%} 
+.be{background:var(--bl);color:#fff;border:none;border-radius:7px;padding:5px 9px;font-size:11px;cursor:pointer} 
+.bd2{background:var(--rd);color:#fff;border:none;border-radius:7px;padding:5px 9px;font-size:11px;cursor:pointer} 
+
+/* EMPTY */ 
+.em{text-align:center;padding:36px 16px} 
+.em .ei{font-size:48px;opacity:.5;margin-bottom:10px} 
+.em p{color:var(--mu);font-size:13px} 
+
+/* TOAST & MODAL */ 
+.toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(16px);background:#0f172a;color:#fff;border-radius:10px;padding:11px 22px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap} 
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)} 
+.toast.ok{background:linear-gradient(135deg,#065f46,var(--gr))} 
+.toast.err{background:linear-gradient(135deg,#7f1d1d,var(--rd))} 
+.mb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px} 
+.mb.open{display:flex} 
+.md{background:#fff;border-radius:20px;padding:26px 22px;max-width:360px;width:100%;text-align:center} 
+.md h3{font-size:17px;font-weight:800;margin-bottom:6px;color:var(--bd)} 
+.md p{font-size:13px;color:var(--mu);margin-bottom:18px} 
+.mdb{display:flex;gap:8px} 
+@media(max-width:480px){.c3{grid-template-columns:repeat(2,1fr)}} 
+</style>
+</head>
+<body>
+
+<div id="ls" class="screen active">
+    <div class="lb">
+        <div class="li">🍚</div>
+        <h1>சத்துணவு பதிவேடு</h1>
+        <p>புரட்சி தலைவர் MGR சத்துணவு திட்டம்</p>
+        <div class="rt">
+            <button class="rb on" onclick="setRole('Admin')">👑 Admin</button>
+            <button class="rb" onclick="setRole('User')">👤 பயனர்</button>
+        </div>
+        <div class="fg">
+            <label>பள்ளி பெயர் (Username)</label>
+            <input type="text" id="lS" placeholder="உம்: PUMS கோவில்பட்டி">
+        </div>
+        <div class="fg">
+            <label>கடவுச்சொல் (Password)</label>
+            <input type="password" id="lP" placeholder="பள்ளி பெயரையே உள்ளிடவும்">
+        </div>
+        <button class="bl" onclick="doLogin()">உள்நுழை →</button>
+    </div>
+</div>
+
+<div id="ap" class="screen">
+    <header class="ah">
+        <div class="li" style="width:36px;height:36px;font-size:18px;margin:0">🍚</div>
+        <div class="at">சத்துணவு பதிவேடு <span class="as" id="hS">பள்ளி</span></div>
+        <button class="hb" onclick="doLogout()">🚪</button>
+    </header>
+
+    <div class="body">
+        <div id="pD" class="page"> 
+            <div class="ban">
+                <h2 id="dSch">பள்ளி</h2><p id="dDt">இன்று</p><div class="bdg" id="dRl">👤</div>
+            </div> 
+            <div class="sg" id="sGrid"></div> 
+            <div class="st">⚡ விரைவு செயல்கள்</div> 
+            <div class="ag"> 
+                <button class="an" style="background:linear-gradient(135deg,#1e3a8a,#1e4fc2)" onclick="gP('entry')"><span class="ai">➕</span>புதிய பதிவு</button> 
+                <button class="an" style="background:linear-gradient(135deg,#14532d,#16a34a)" onclick="gP('stock')"><span class="ai">📦</span>இருப்பு Update</button> 
+                <button class="an" style="background:linear-gradient(135deg,#065f46,#0d9e6e)" onclick="gP('report')"><span class="ai">📊</span>அறிக்கை</button> 
+                <button class="an" style="background:linear-gradient(135deg,#7c2d12,#ea580c)" onclick="doExcel()"><span class="ai">📥</span>Excel Download</button> 
+                <button class="an" style="background:linear-gradient(135deg,#475569,#64748b)" onclick="backupData()"><span class="ai">💾</span>Backup Data</button> 
+                <button class="an" style="background:linear-gradient(135deg,#94a3b8,#cbd5e1);color:#0f172a" onclick="document.getElementById('importFile').click()"><span class="ai">📂</span>Restore Data</button>
+                <input type="file" id="importFile" accept=".json" style="display:none" onchange="restoreData(event)">
+            </div> 
+            <div class="st">🏪 தற்போதைய இருப்பு நிலை</div> 
+            <div id="dStock"></div> 
+        </div> 
+
+        <div id="pE" class="page" style="display:none"> 
+            <div class="card"> 
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"> 
+                    <span style="font-size:18px">📋</span> 
+                    <h3 style="font-size:14px;font-weight:800;color:var(--bd)" id="eTitle">புதிய பதிவு</h3> 
+                </div> 
+                <div class="st">பொது தகவல்</div> 
+                <div class="fr c2"> 
+                    <div class="fgs"><label>தேதி *</label><input type="date" id="fDt"></div> 
+                    <div class="fgs"><label>மாதம் *</label> 
+                        <select id="fMo" style="width:100%;padding:9px 11px;border:2px solid var(--br);border-radius:9px;font-family:inherit;font-size:13px;background:#f8faff;outline:none;color:var(--tx)"> 
+                            <option>ஜனவரி</option><option>பிப்ரவரி</option><option>மார்ச்</option><option>ஏப்ரல்</option> 
+                            <option>மே</option><option>ஜூன்</option><option>ஜூலை</option><option>ஆகஸ்ட்</option> 
+                            <option>செப்டம்பர்</option><option>அக்டோபர்</option><option>நவம்பர்</option><option>டிசம்பர்</option> 
+                        </select> 
+                    </div> 
+                </div> 
+                <div class="fgs" style="margin-bottom:14px"><label>உண்ணும் மாணவர்கள் *</label><input type="number" id="fSt" placeholder="52" min="0"></div> 
+                
+                <div class="strip gr-strip" style="padding:0;overflow:hidden"> 
+                    <div style="background:#c2410c;padding:10px 14px;color:#fff;font-size:12px;font-weight:800"> 
+                        🌾 தானியங்கள் & முட்டை — இருப்பு அளவு / இன்று பயன்பாடு / மீதம் 
+                    </div> 
+                    <div class="table-res">
+                        <table style="width:100%;border-collapse:collapse;min-width:380px;"> 
+                            <thead> 
+                                <tr style="background:#fff3e4"> 
+                                    <th style="padding:8px 10px;font-size:10px;font-weight:800;color:#92400e;text-align:left;width:32%">பொருள்</th> 
+                                    <th style="padding:8px 6px;font-size:10px;font-weight:800;color:#065f46;text-align:center;width:22%">📦 இருப்பு</th> 
+                                    <th style="padding:8px 6px;font-size:10px;font-weight:800;color:#c2410c;text-align:center;width:24%">🔥 பயன்பாடு</th> 
+                                    <th style="padding:8px 6px;font-size:10px;font-weight:800;color:#1e4fc2;text-align:center;width:22%">✅ மீதம்</th> 
+                                </tr> 
+                            </thead> 
+                            <tbody id="grainTbody"></tbody> 
+                        </table> 
+                    </div>
+                </div> 
+
+                <div class="strip mo-strip" style="padding:0;overflow:hidden;margin-top:10px"> 
+                    <div style="background:#065f46;padding:10px 14px;color:#fff;font-size:12px;font-weight:800"> 
+                        💰 தினசரி செலவுகள் (₹) 
+                    </div> 
+                    <div style="padding:12px">
+                        <div class="fr c3">
+                            <div class="fgs"><label>🥦 காய்கறி</label><input type="number" id="uV" placeholder="0" min="0" oninput="calcM()"></div>
+                            <div class="fgs"><label>🛍️ மளிகை</label><input type="number" id="uG" placeholder="0" min="0" oninput="calcM()"></div>
+                            <div class="fgs"><label>🪵 எரிபொருள்</label><input type="number" id="uF" placeholder="0" min="0" oninput="calcM()"></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;background:#dcfce7;padding:10px 14px;border-radius:8px;margin-top:10px;border:1px solid #bbf7d0">
+                            <div style="font-size:12px;font-weight:700;color:#065f46">மொத்த செலவு: <span style="font-size:16px;font-weight:800">₹<span id="totM">0</span></span></div>
+                            <div style="font-size:12px;font-weight:700;color:#1e4fc2">இருப்பு மீதம்: <span style="font-size:16px;font-weight:800">₹<span id="remM">0</span></span></div>
+                        </div>
+                    </div>
+                </div> 
+                
+                <div class="fr c2" style="margin-bottom:14px;margin-top:10px"> 
+                    <div class="fgs"><label>📝 குறிப்பு</label><input type="text" id="fRm" placeholder="Normal"></div> 
+                </div> 
+                <div style="display:flex;gap:8px"> 
+                    <button class="bs" style="flex:1" onclick="gP('dash')">↩ ரத்து</button> 
+                    <button class="bp" style="flex:2" onclick="gPrev()">Preview காண் →</button> 
+                </div> 
+            </div> 
+        </div> 
+
+        <div id="pP" class="page" style="display:none"> 
+            <div id="pvC"></div> 
+            <div style="display:flex;gap:8px;margin-top:4px"> 
+                <button class="bs" style="flex:1" onclick="gP('entry')">✏️ திருத்து</button> 
+                <button class="bg" style="flex:2" onclick="saveEntry()">✅ உறுதிப்படுத்து & சேமி</button> 
+            </div> 
+        </div> 
+
+        <div id="pS" class="page" style="display:none"> 
+            <div id="sBal"></div> 
+            <div class="card"> 
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"> 
+                    <span style="font-size:18px">📦</span> 
+                    <h3 style="font-size:14px;font-weight:800;color:var(--bd)">புதிய இருப்பு சேர்க்கை</h3> 
+                </div> 
+                <div class="fr c2" style="margin-bottom:10px"> 
+                    <div class="fgs"><label>தேதி *</label><input type="date" id="sDt"></div> 
+                    <div class="fgs"><label>Supplier</label><input type="text" id="sSp" placeholder="அரசு கிடங்கு"></div> 
+                </div> 
+                <div class="strip gr-strip"> 
+                    <div class="strip-t" style="color:#c2410c">🌾 தானியங்கள் & முட்டை வரவு</div> 
+                    <div class="fr c3"> 
+                        <div class="fgs"><label>🌾 அரிசி</label><input type="number" id="iR" placeholder="0" step="0.01" min="0"></div> 
+                        <div class="fgs"><label>🫘 பருப்பு</label><input type="number" id="iD" placeholder="0" step="0.01" min="0"></div> 
+                        <div class="fgs"><label>🫙 எண்ணெய்</label><input type="number" id="iO" placeholder="0" step="0.01" min="0"></div> 
+                    </div> 
+                    <div class="fr c3"> 
+                        <div class="fgs"><label>🫛 கொண்டைக்கடலை</label><input type="number" id="iC" placeholder="0" step="0.01" min="0"></div> 
+                        <div class="fgs"><label>🌿 பாசிப்பருப்பு</label><input type="number" id="iM" placeholder="0" step="0.01" min="0"></div> 
+                        <div class="fgs"><label>🧂 உப்பு</label><input type="number" id="iSa" placeholder="0" step="0.01" min="0"></div> 
+                    </div> 
+                    <div class="fr c3">
+                        <div class="fgs"><label>🥚 முட்டை (எண்)</label><input type="number" id="iEg" placeholder="0" min="0"></div>
+                    </div>
+                </div> 
+                <div class="strip mo-strip"> 
+                    <div class="strip-t" style="color:#065f46">💰 தொகை இருப்பு வரவு (₹) — காய்கறி + மளிகை + எரிபொருள் சேர்த்து</div> 
+                    <div class="fr" style="max-width:280px"> 
+                        <div class="fgs"><label>💰 மொத்த தொகை (₹)</label><input type="number" id="iAmt" placeholder="0" step="0.01" min="0"></div> 
+                    </div> 
+                </div> 
+                <div class="fgs" style="margin-bottom:14px"><label>குறிப்பு</label><input type="text" id="sRm" placeholder="மாதாந்திர ஒதுக்கீடு"></div> 
+                <button class="bg" onclick="saveStock()">📦 இருப்பு சேமி</button> 
+            </div> 
+            <div class="st">📋 இருப்பு சேர்க்கை வரலாறு</div> 
+            <div id="sHist"></div> 
+            <div id="sEmp" class="em" style="display:none"><div class="ei">📭</div><p>இன்னும் இருப்பு சேர்க்கை இல்லை</p></div> 
+        </div> 
+
+        <div id="pR" class="page" style="display:none"> 
+            <div class="rf"> 
+                <select id="fMn" onchange="loadRpt()"> 
+                    <option>ஜனவரி</option><option>பிப்ரவரி</option><option>மார்ச்</option><option>ஏப்ரல்</option> 
+                    <option>மே</option><option>ஜூன்</option><option>ஜூலை</option><option>ஆகஸ்ட்</option> 
+                    <option>செப்டம்பர்</option><option>அக்டோபர்</option><option>நவம்பர்</option><option>டிசம்பர்</option> 
+                </select> 
+                <button class="bp" style="padding:9px 14px;font-size:12px;width:auto;background:linear-gradient(135deg,#1e3a8a,#1e4fc2)" onclick="doExcel()">📥 Excel</button> 
+                <button class="bp" style="padding:9px 14px;font-size:12px;width:auto;background:linear-gradient(135deg,#991b1b,#dc2626)" onclick="downloadPDF()">📄 PDF</button> 
+                <button class="bg" style="padding:9px 14px;font-size:12px;width:auto;margin-left:auto" onclick="gP('entry')">➕ புதிய</button> 
+            </div> 
+            
+            <div id="reportContentToPrint">
+                <div class="chips" id="sCh"></div> 
+                <div id="rBal" style="margin-bottom:12px"></div> 
+                <div class="tw"> 
+                    <table> 
+                        <thead> 
+                            <tr> 
+                                <th>தேதி</th><th>மாணவர்</th> 
+                                <th>🌾அரிசி<br>kg</th><th>🫘பருப்பு<br>kg</th> 
+                                <th>🫙எண்ணெய்<br>L</th><th>🫛கொண்டை<br>கடலை kg</th> 
+                                <th>🌿பாசிப்<br>பருப்பு kg</th><th>🧂உப்பு<br>kg</th> 
+                                <th>🥚முட்டை<br>எண்</th> 
+                                <th>🥦காய்<br>(₹)</th><th>🛍️மளிகை<br>(₹)</th><th>🪵எரி<br>பொருள்(₹)</th><th>💰மொத்தம்<br>(₹)</th>
+                                <th>குறிப்பு</th><th class="no-print">செயல்</th> 
+                            </tr> 
+                        </thead> 
+                        <tbody id="rBody"></tbody> 
+                    </table> 
+                </div> 
+            </div>
+            <div id="rEmp" class="em" style="display:none"><div class="ei">📭</div><p>இந்த மாதத்தில் பதிவு இல்லை</p></div> 
+        </div> 
+    </div> 
+
+    <nav class="nb">
+        <button class="ab" id="nD" onclick="gP('dash')"><span class="ni">🏠</span>முகப்பு</button>
+        <button class="ab" id="nE" onclick="gP('entry')"><span class="ni">➕</span>பதிவு</button>
+        <button class="ab" id="nS" onclick="gP('stock')"><span class="ni">📦</span>இருப்பு</button>
+        <button class="ab" id="nR" onclick="gP('report')"><span class="ni">📊</span>அறிக்கை</button>
+    </nav>
+</div>
+
+<div id="tst" class="toast"></div>
+
+<div class="mb" id="mOk">
+    <div class="md">
+        <div style="font-size:40px;margin-bottom:10px">✅</div>
+        <h3 id="mT">வெற்றி!</h3>
+        <p id="mMsg">பதிவு சேமிக்கப்பட்டது</p>
+        <button class="bp" onclick="closeMOk()">Dashboard செல்</button>
+    </div>
+</div>
+
+<div class="mb" id="mDl">
+    <div class="md">
+        <div style="font-size:40px;margin-bottom:10px">🗑️</div>
+        <h3>நீக்கவா?</h3>
+        <p id="dMsg">பதிவை நீக்கவா?</p>
+        <div class="mdb">
+            <button class="bs" style="flex:1" onclick="closeMDl()">ரத்து</button>
+            <button class="bp" style="flex:1;background:var(--rd)" onclick="confDel()">நீக்கு</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============ PWA SERVICE WORKER ============
+if ('serviceWorker' in navigator) {
+    const sw = `
+    self.addEventListener('install', e => self.skipWaiting());
+    self.addEventListener('activate', e => self.clients.claim());
+    self.addEventListener('fetch', e => {
+        e.respondWith(fetch(e.request).catch(() => new Response('App is offline. Please check your connection.')));
+    });`;
+    const blob = new Blob([sw], {type: 'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob)).then(()=>console.log('PWA Ready'));
+}
+
+// ============ CONFIG ============ 
+const GRAINS=[ 
+    {k:'R', lbl:'🌾 அரிசி', unit:'kg', low:10, iId:'iR', uId:'uR'}, 
+    {k:'D', lbl:'🫘 பருப்பு', unit:'kg', low:3, iId:'iD', uId:'uD'}, 
+    {k:'O', lbl:'🫙 எண்ணெய்', unit:'L', low:2, iId:'iO', uId:'uO'}, 
+    {k:'C', lbl:'🫛 கொண்டைக்கடலை', unit:'kg', low:2, iId:'iC', uId:'uC'}, 
+    {k:'M', lbl:'🌿 பாசிப்பருப்பு', unit:'kg', low:2, iId:'iM', uId:'uM'}, 
+    {k:'Sa',lbl:'🧂 உப்பு', unit:'kg', low:1, iId:'iSa',uId:'uSa'}, 
+    {k:'Eg',lbl:'🥚 முட்டை', unit:'எண்', low:50, iId:'iEg',uId:'uEg'} 
+]; 
+const MONEY=[ {k:'Amt', lbl:'💰 தொகை இருப்பு', unit:'₹', low:500, iId:'iAmt'} ]; 
+const MONTHS=['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்']; 
+
+// Formatting helper (No decimals for Eggs/Nos)
+const fN = (v, u) => u === 'எண்' ? v.toFixed(0) : v.toFixed(2);
+
+// ============ STATE ============ 
+let S={ 
+    user:'',role:'Admin',school:'', 
+    entries:JSON.parse(localStorage.getItem('mdm_e')||'[]'), 
+    stocks: JSON.parse(localStorage.getItem('mdm_s')||'[]'), 
+    editId:null,delId:null,delType:'e',page:'dash' 
+}; 
+
+// ============ BALANCE ============ 
+function bal(){ 
+    const sc=S.school; 
+    const b={}; 
+    [...GRAINS,...MONEY].forEach(x=>{ 
+        const totalIn =S.stocks.filter(s=>s.sc===sc).reduce((t,s)=>t+(s['i'+x.k]||0),0); 
+        const totalOut=S.entries.filter(e=>e.sc===sc).reduce((t,e)=>t+(e['u'+x.k]||0),0); 
+        b[x.k]=totalIn-totalOut; 
+    }); 
+    return b; 
+} 
+
+// ============ AUTH & NAV ============ 
+function setRole(r){ S.role=r; document.querySelectorAll('.rb').forEach((b,i)=>b.classList.toggle('on',(i===0&&r==='Admin')||(i===1&&r==='User'))); } 
+function doLogin(){ 
+    const sc=document.getElementById('lS').value.trim();
+    const p=document.getElementById('lP').value.trim(); 
+    if(!sc||!p){toast('அனைத்தையும் நிரப்பவும்','err');return;} 
+    if(sc !== p){toast('கடவுச்சொல் தவறானது! பள்ளி பெயரையே கடவுச்சொல்லாக உள்ளிடவும்.','err');return;} 
+    S.user=sc; S.school=sc; document.getElementById('hS').textContent=sc; 
+    document.getElementById('ls').classList.remove('active'); document.getElementById('ap').classList.add('active'); 
+    init(); 
+} 
+function doLogout(){ document.getElementById('ap').classList.remove('active'); document.getElementById('ls').classList.add('active'); } 
+function gP(p){ 
+    document.querySelectorAll('.page').forEach(x=>x.style.display='none'); document.querySelectorAll('.ab').forEach(x=>x.classList.remove('on')); 
+    S.page=p; 
+    if(p==='dash'){ show('pD');actN('nD');loadDash();} 
+    if(p==='entry'){ show('pE');actN('nE');if(!S.editId)initEntry(); } 
+    if(p==='preview'){show('pP');} 
+    if(p==='stock'){ show('pS');actN('nS');renderBal();initStock();loadHist();} 
+    if(p==='report'){show('pR');actN('nR');document.getElementById('fMn').value=MONTHS[new Date().getMonth()];loadRpt();} 
+} 
+function show(id){document.getElementById(id).style.display='block';} 
+function actN(id){document.getElementById(id).classList.add('on');} 
+
+function init(){ 
+    const t=new Date(); 
+    document.getElementById('dSch').textContent=S.school; 
+    document.getElementById('dDt').textContent=`இன்று: ${t.toLocaleDateString('ta-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`; 
+    document.getElementById('dRl').textContent=S.role==='Admin'?'👑 Admin':'👤 பயனர்'; 
+    gP('dash'); 
+} 
+
+// ============ DASHBOARD ============ 
+function loadDash(){ 
+    const mn=MONTHS[new Date().getMonth()]; 
+    const es=S.entries.filter(e=>e.sc===S.school&&e.mo===mn); 
+    const tD=es.length,tSt=es.reduce((s,e)=>s+e.st,0); 
+    const tR=es.reduce((s,e)=>s+(e.uR||0),0),tEg=es.reduce((s,e)=>s+(e.uEg||0),0); 
+    document.getElementById('sGrid').innerHTML=` 
+        <div class="sc" onclick="gP('report')"><div class="si" style="background:#dbeafe">📅</div><div class="sv">${tD}</div><div class="sl">${mn} பணி நாட்கள்</div></div> 
+        <div class="sc"><div class="si" style="background:#dcfce7">👨‍👩‍👧‍👦</div><div class="sv">${tSt}</div><div class="sl">மொத்த மாணவர்கள்</div></div> 
+        <div class="sc"><div class="si" style="background:#ffedd5">🌾</div><div class="sv">${tR.toFixed(1)}</div><div class="sl">அரிசி பயன்பாடு (kg)</div></div> 
+        <div class="sc"><div class="si" style="background:#f3e8ff">🥚</div><div class="sv">${tEg}</div><div class="sl">முட்டை எண்ணிக்கை</div></div>`; 
+    const b=bal(); 
+    const all=[...GRAINS,...MONEY]; 
+    document.getElementById('dStock').innerHTML=`<div class="stg">${all.map(x=>{ 
+        const v=b[x.k]||0, isLow=v<=x.low, isWarn=v<=x.low*2&&v>x.low, cls=isLow?'lo':isWarn?'wa':'ok'; 
+        const disp=x.unit==='₹'?`₹${v.toFixed(0)}`: `${fN(v, x.unit)} ${x.unit}`; 
+        return `<div class="si2 ${cls}"><div><div class="sn">${x.lbl}</div>${isLow?'<div class="sa">⚠️ குறைவு!</div>':''}</div><div class="sv2">${disp}</div></div>`; 
+    }).join('')}</div>`; 
+} 
+
+// ============ ENTRY & SPLIT CALCULATION ============ 
+function calcM(){
+    const v = parseFloat(document.getElementById('uV').value)||0;
+    const g = parseFloat(document.getElementById('uG').value)||0;
+    const f = parseFloat(document.getElementById('uF').value)||0;
+    const tot = v + g + f;
+    document.getElementById('totM').textContent = tot.toFixed(0);
+    
+    const stock = bal()['Amt'] || 0;
+    const rem = stock - tot;
+    const remEl = document.getElementById('remM');
+    remEl.textContent = rem.toFixed(0);
+    remEl.style.color = rem < 0 ? '#dc2626' : '#1e4fc2';
+}
+
+function calcG(){
+    const b = bal();
+    GRAINS.forEach(g => {
+        const stock = b[g.k] || 0;
+        const used = parseFloat(document.getElementById(g.uId)?.value) || 0;
+        const rem = stock - used;
+        const remEl = document.getElementById('rem_' + g.k);
+        if(remEl) {
+            remEl.textContent = fN(rem, g.unit);
+            remEl.className = 'rem-val ' + (rem < 0 ? 'low' : '');
+        }
+    });
+}
+
+function initEntry(){ 
+    S.editId=null; document.getElementById('eTitle').textContent='புதிய பதிவு'; 
+    document.getElementById('fDt').value=new Date().toISOString().split('T')[0]; document.getElementById('fMo').value=MONTHS[new Date().getMonth()]; 
+    document.getElementById('fRm').value='Normal'; 
+    ['uV','uG','uF'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    renderEntryTables(); // Build HTML once
+    GRAINS.forEach(x=>{ const el=document.getElementById(x.uId); if(el) el.value=''; }); 
+    calcG();
+    calcM();
+} 
+
+function renderEntryTables(){ 
+    const b=bal(); 
+    document.getElementById('grainTbody').innerHTML=GRAINS.map(g=>{ 
+        const stock=b[g.k]||0;
+        const cv = document.getElementById(g.uId)?.value || ''; // Get current value if exists
+        const used = parseFloat(cv)||0;
+        const rem = stock-used; 
+        return `<tr class="etr"><td>${g.lbl} <span style="font-size:9px;color:var(--mu);font-weight:500">(${g.unit})</span></td> 
+            <td class="stk-val ${stock<=g.low?'low':''}">${fN(stock, g.unit)}</td> 
+            <td><input type="number" class="use-inp" id="${g.uId}" placeholder="0" step="0.01" min="0" value="${cv}" oninput="calcG()"></td> 
+            <td class="rem-val ${rem<0?'low':''}" id="rem_${g.k}">${fN(rem, g.unit)}</td></tr>`; 
+    }).join(''); 
+} 
+
+function fData(){ 
+    const g=id=>parseFloat(document.getElementById(id)?.value)||0; 
+    const d={ id:S.editId||Date.now().toString(), dt:document.getElementById('fDt').value, mo:document.getElementById('fMo').value, 
+        sc:S.school, st:parseInt(document.getElementById('fSt').value)||0, 
+        rm:document.getElementById('fRm').value||'Normal', by:S.user,at:new Date().toISOString() }; 
+    GRAINS.forEach(gr=>d['u'+gr.k]=g(gr.uId)); 
+    d.uV = g('uV'); d.uG = g('uG'); d.uF = g('uF');
+    d.uAmt = d.uV + d.uG + d.uF;
+    return d; 
+} 
+
+function gPrev(){ 
+    if(!document.getElementById('fDt').value||!document.getElementById('fSt').value){toast('தேதி மற்றும் மாணவர் எண்ணிக்கை கட்டாயம்','err');return;} 
+    const d=fData(),b=bal(); 
+    const sec=(ttl,hc,hbg,rows)=>`<div class="ps" style="border-color:${hc}44;margin-bottom:10px"><div class="ph" style="background:${hbg};color:${hc}">${ttl}</div> 
+        <div class="pb">${rows.map(r=>`<div class="pr"><span class="pl">${r[0]}</span><span class="pv ${r[2]?'hi':''}">${r[1]||'—'}</span></div>`).join('')}</div></div>`; 
+    const gRows=GRAINS.map(g=>{ const used=d['u'+g.k]||0, rem=(b[g.k]||0)-used; return [`${g.lbl} பயன்`,`${used} ${g.unit} → மீதம்: ${fN(rem, g.unit)} ${g.unit}`, used>0]; }); 
+    const mRows=[
+        ['🥦 காய்கறி',`₹${d.uV}`,d.uV>0],
+        ['🛍️ மளிகை',`₹${d.uG}`,d.uG>0],
+        ['🪵 எரிபொருள்',`₹${d.uF}`,d.uF>0],
+        ['💰 மொத்த செலவு',`₹${d.uAmt} (மீதம்: ₹${((b['Amt']||0)-d.uAmt).toFixed(0)})`,d.uAmt>0]
+    ];
+    document.getElementById('pvC').innerHTML= 
+        sec('📋 பொது தகவல்','#1e4fc2','#dbeafe',[['தேதி',d.dt,true],['பள்ளி',S.school],['மாதம்',d.mo],['மாணவர்கள்',d.st+' பேர்',true]])+ 
+        sec('🌾 தானியங்கள் & முட்டை','#c2410c','#ffedd5',gRows)+ 
+        sec('💰 செலவு','#065f46','#f0fdf4',mRows)+ 
+        sec('📝 குறிப்பு','#4338ca','#eef2ff',[['தகவல்',d.rm]]); 
+    gP('preview'); 
+} 
+
+function saveEntry(){ 
+    const d=fData(); 
+    if(S.editId){const i=S.entries.findIndex(e=>e.id===S.editId);if(i>=0)S.entries[i]=d;} else S.entries.push(d); 
+    localStorage.setItem('mdm_e',JSON.stringify(S.entries)); S.editId=null; 
+    document.getElementById('mT').textContent='வெற்றி!'; document.getElementById('mMsg').textContent=`${d.dt} பதிவு சேமிக்கப்பட்டது`; document.getElementById('mOk').classList.add('open'); 
+} 
+function closeMOk(){document.getElementById('mOk').classList.remove('open');gP('dash');} 
+
+// ============ STOCK ============ 
+function renderBal(){ 
+    const b=bal(); 
+    const gHtml=GRAINS.map(g=>{ const v=b[g.k]||0,low=v<=g.low; return `<div class="bb" style="background:rgba(255,255,255,${low?.25:.18})"><div style="font-size:16px">${g.lbl.split(' ')[0]}</div><div class="bv2" style="color:${low?'#fde68a':'#fff'}">${fN(v, g.unit)}</div><div class="bn">${g.lbl.replace(/^[^\s]+\s/,'')}</div><div class="bu">${g.unit}${low?' ⚠️':''}</div></div>`; }).join(''); 
+    const mHtml=MONEY.map(m=>{ const v=b[m.k]||0,low=v<=m.low; return `<div class="bb" style="background:rgba(255,255,255,${low?.25:.18})"><div style="font-size:16px">${m.lbl.split(' ')[0]}</div><div class="bv2" style="color:${low?'#fde68a':'#fff'}">₹${v.toFixed(0)}</div><div class="bn">${m.lbl.replace(/^[^\s]+\s/,'')}</div><div class="bu">${low?'⚠️ குறைவு':''}</div></div>`; }).join(''); 
+    document.getElementById('sBal').innerHTML=`<div class="bc" style="background:linear-gradient(135deg,#0a2463,#1e4fc2)"><div style="color:#fff;font-size:13px;font-weight:800;opacity:.9">🌾 தானியங்கள் & முட்டை இருப்பு</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">${gHtml}</div></div><div class="bc" style="background:linear-gradient(135deg,#065f46,#0d9e6e)"><div style="color:#fff;font-size:13px;font-weight:800;opacity:.9">💰 தொகை இருப்பு (₹)</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">${mHtml}</div></div>`; 
+} 
+function initStock(){ 
+    document.getElementById('sDt').value=new Date().toISOString().split('T')[0]; ['iR','iD','iO','iC','iM','iSa','iEg','iAmt'].forEach(id=>{document.getElementById(id).value='';}); document.getElementById('sSp').value='';document.getElementById('sRm').value=''; 
+} 
+function saveStock(){ 
+    const dt=document.getElementById('sDt').value; if(!dt){toast('தேதி தேர்ந்தெடுக்கவும்','err');return;} 
+    const g=id=>parseFloat(document.getElementById(id)?.value)||0; 
+    const rec={id:Date.now().toString(),dt,sc:S.school,sp:document.getElementById('sSp').value||'—',rm:document.getElementById('sRm').value||'—',by:S.user,at:new Date().toISOString()}; 
+    GRAINS.forEach(gr=>rec['i'+gr.k]=g(gr.iId)); MONEY.forEach(m=>rec['i'+m.k]=g(m.iId)); 
+    if(![...GRAINS,...MONEY].some(x=>rec['i'+x.k]>0)){toast('குறைந்தது ஒரு அளவு கொடுக்கவும்','err');return;} 
+    S.stocks.push(rec); localStorage.setItem('mdm_s',JSON.stringify(S.stocks)); toast('✅ இருப்பு சேமிக்கப்பட்டது!','ok'); initStock();renderBal();loadHist(); 
+} 
+function loadHist(){ 
+    const list=S.stocks.filter(s=>s.sc===S.school).slice().reverse(); const el=document.getElementById('sHist'),em=document.getElementById('sEmp'); 
+    if(!list.length){el.innerHTML='';em.style.display='block';return;} em.style.display='none'; 
+    el.innerHTML=list.map(s=>{ 
+        const gp=GRAINS.map(g=>s['i'+g.k]>0?`${g.lbl}: <b>${fN(s['i'+g.k], g.unit)} ${g.unit}</b>`:'').filter(Boolean).join(' | '); 
+        const mp=MONEY.map(m=>s['i'+m.k]>0?`${m.lbl}: <b>₹${s['i'+m.k]}</b>`:'').filter(Boolean).join(' | '); 
+        return `<div class="card" style="padding:12px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><div><div style="font-weight:800;font-size:13px;color:var(--bd)">📅 ${s.dt}</div><div style="font-size:10px;color:var(--mu)">🏪 ${s.sp} | 👤 ${s.by}</div></div>${S.role==='Admin'?`<button class="bd2" onclick="delStock('${s.id}')">🗑️</button>`:''}</div>${gp?`<div style="font-size:11px;color:#92400e;background:#fef3c7;border-radius:7px;padding:6px 10px;margin-bottom:6px">${gp}</div>`:''}${mp?`<div style="font-size:11px;color:#065f46;background:#f0fdf4;border-radius:7px;padding:6px 10px;margin-bottom:6px">${mp}</div>`:''}${s.rm!=='—'?`<div style="font-size:10px;color:var(--mu)">📝 ${s.rm}</div>`:''}</div>`; 
+    }).join(''); 
+} 
+
+// ============ REPORT ============ 
+function loadRpt(){ 
+    const mn=document.getElementById('fMn').value, es=S.entries.filter(e=>e.sc===S.school&&e.mo===mn); 
+    const bd=document.getElementById('rBody'),em=document.getElementById('rEmp'); 
+    if(!es.length){bd.innerHTML='';em.style.display='block';document.getElementById('sCh').innerHTML='';document.getElementById('rBal').innerHTML='';return;} 
+    em.style.display='none'; const b=bal(); 
+    
+    document.getElementById('sCh').innerHTML=[`நாட்கள்: <span>${es.length}</span>`,`மாணவர்: <span>${es.reduce((s,e)=>s+e.st,0)}</span>`,...GRAINS.map(g=>`${g.lbl}: <span>${fN(es.reduce((s,e)=>s+(e['u'+g.k]||0),0), g.unit)} ${g.unit}</span>`),...MONEY.map(m=>`${m.lbl} இருப்பு: <span>₹${(b[m.k]||0).toFixed(0)}</span>`)].map(c=>`<div class="chip">${c}</div>`).join(''); 
+    document.getElementById('rBal').innerHTML=`<div style="background:linear-gradient(135deg,#0a2463,#1e4fc2);border-radius:12px;padding:12px;color:#fff"><div style="font-size:12px;font-weight:800;opacity:.85;margin-bottom:8px">📊 தற்போதைய இருப்பு (Running Balance)</div><div style="display:flex;flex-wrap:wrap;gap:8px">${[...GRAINS,...MONEY].map(x=>{ const v=b[x.k]||0,low=v<=x.low; return `<span style="background:rgba(255,255,255,${low?.3:.15});border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;color:${low?'#fde68a':'#fff'}">${x.lbl} ${x.unit==='₹'?`₹${v.toFixed(0)}`:`${fN(v, x.unit)} ${x.unit}`}${low?' ⚠️':''}</span>`; }).join('')}</div></div>`; 
+        
+    bd.innerHTML=es.map(e=>`<tr><td><b>${e.dt}</b></td><td>${e.st}</td>${GRAINS.map(g=>`<td>${e['u'+g.k]||0}</td>`).join('')}
+        <td>${e.uV||0}</td><td>${e.uG||0}</td><td>${e.uF||0}</td><td><b>₹${e.uAmt||0}</b></td>
+        <td>${e.rm}</td><td class="no-print">${S.role==='Admin'?`<button class="be" onclick="editE('${e.id}')">✏️</button> <button class="bd2" onclick="openDel('${e.id}','e','${e.dt}')">🗑️</button>`:'—'}</td></tr>`).join(''); 
+} 
+
+function editE(id){ 
+    const e=S.entries.find(x=>x.id===id);if(!e)return; S.editId=id; 
+    document.getElementById('eTitle').textContent='பதிவு திருத்து'; document.getElementById('fDt').value=e.dt; document.getElementById('fMo').value=e.mo; 
+    document.getElementById('fSt').value=e.st; document.getElementById('fRm').value=e.rm||'Normal'; 
+    
+    ['uV','uG','uF'].forEach(k=>{const el=document.getElementById(k);if(el)el.value=e[k]||'';});
+    renderEntryTables(); 
+    GRAINS.forEach(g=>{const el=document.getElementById(g.uId);if(el)el.value=e['u'+g.k]||'';}); 
+    
+    calcG();
+    calcM();
+    gP('entry'); 
+} 
+
+function openDel(id,type,lbl){S.delId=id;S.delType=type;document.getElementById('dMsg').textContent=`${lbl} பதிவை நீக்கவா?`;document.getElementById('mDl').classList.add('open');} 
+function closeMDl(){document.getElementById('mDl').classList.remove('open');} 
+function confDel(){ if(S.delType==='e'){S.entries=S.entries.filter(e=>e.id!==S.delId);localStorage.setItem('mdm_e',JSON.stringify(S.entries));loadRpt();} else{S.stocks=S.stocks.filter(s=>s.id!==S.delId);localStorage.setItem('mdm_s',JSON.stringify(S.stocks));renderBal();loadHist();} closeMDl();toast('நீக்கப்பட்டது','ok'); } 
+function delStock(id){openDel(id,'s','இந்த இருப்பு');} 
+
+// ============ DATA BACKUP / RESTORE / PDF / EXCEL ============ 
+function backupData() {
+    const dataStr = JSON.stringify({entries: S.entries, stocks: S.stocks}, null, 2);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([dataStr], { type: 'application/json' }));
+    a.download = `MDM_Backup_${S.school}_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); toast('✅ Backup தரவிறக்கம் செய்யப்பட்டது', 'ok');
+}
+function restoreData(event) {
+    const file = event.target.files[0]; if (!file) return; const reader = new FileReader();
+    reader.onload = function(e) { try { const data = JSON.parse(e.target.result); if (data.entries && data.stocks) { localStorage.setItem('mdm_e', JSON.stringify(data.entries)); localStorage.setItem('mdm_s', JSON.stringify(data.stocks)); S.entries = data.entries; S.stocks = data.stocks; toast('✅ Data மீட்கப்பட்டது!', 'ok'); loadDash(); document.getElementById('importFile').value = ''; } else { toast('❌ தவறான File format', 'err'); } } catch (err) { toast('❌ Error: File படிக்க முடியவில்லை', 'err'); } };
+    reader.readAsText(file);
+}
+function downloadPDF() {
+    document.querySelectorAll('.no-print').forEach(el => el.style.display = 'none');
+    html2pdf().set({ margin:0.3, filename:`${document.getElementById('fMn').value}_${S.school}_MDM_Report.pdf`, image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2,useCORS:true}, jsPDF:{unit:'in',format:'a4',orientation:'landscape'} }).from(document.getElementById('reportContentToPrint')).save().then(() => { toast('✅ PDF Download வெற்றி!', 'ok'); document.querySelectorAll('.no-print').forEach(el => el.style.display = ''); });
+}
+function doExcel(){ 
+    const mn=S.page==='report'?document.getElementById('fMn').value:MONTHS[new Date().getMonth()], es=S.entries.filter(e=>e.sc===S.school&&e.mo===mn); 
+    if(!es.length){toast('Export-க்கு data இல்லை','err');return;} 
+    const hdr=['தேதி','மாணவர்',...GRAINS.map(g=>g.lbl+' ('+g.unit+')'),'🥦 காய்கறி (₹)','🛍️ மளிகை (₹)','🪵 எரிபொருள் (₹)','💰 மொத்த செலவு (₹)','குறிப்பு']; 
+    const rows=[ [`புரட்சி தலைவர் MGR சத்துணவு திட்டம் - ${mn} - ${S.school}`],[],hdr, ...es.map(e=>[e.dt,e.st,...GRAINS.map(g=>e['u'+g.k]||0), e.uV||0, e.uG||0, e.uF||0, e.uAmt||0, e.rm]), 
+        [],['மொத்தம்',es.reduce((s,e)=>s+e.st,0),...GRAINS.map(g=>es.reduce((s,e)=>s+(e['u'+g.k]||0),0).toFixed(g.unit==='எண்'?0:2)),es.reduce((s,e)=>s+(e.uV||0),0).toFixed(0),es.reduce((s,e)=>s+(e.uG||0),0).toFixed(0),es.reduce((s,e)=>s+(e.uF||0),0).toFixed(0),es.reduce((s,e)=>s+(e.uAmt||0),0).toFixed(0),''], 
+    ]; 
+    const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=Array(hdr.length).fill({wch:16}); ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:hdr.length-1}}]; 
+    XLSX.utils.book_append_sheet(wb,ws,`${mn} MDM`); XLSX.writeFile(wb,`${mn}_${S.school}_MDM.xlsx`); toast('✅ Excel Download வெற்றி!','ok'); 
+} 
+
+function toast(msg,type=''){ const t=document.getElementById('tst');t.textContent=msg;t.className=`toast ${type} show`; setTimeout(()=>t.className='toast',2800); } 
+
+// Sample Data update
+if(!S.entries.length&&!S.stocks.length){ 
+    S.stocks=[{id:'st1',dt:'2026-03-01',sc:'PUMS கோவில்பட்டி',sp:'அரசு கிடங்கு', iR:50,iD:10,iO:6,iC:5,iM:4,iSa:3,iEg:100,iAmt:4100, rm:'மார்ச் மாத ஒதுக்கீடு',by:'admin',at:'2026-03-01T08:00:00'}]; 
+    S.entries=[ {id:'e1',dt:'2026-03-01',mo:'மார்ச்',sc:'PUMS கோவில்பட்டி',st:52,uR:6.5,uD:1.2,uO:0.5,uC:0.6,uM:0.4,uSa:0.1,uEg:52,uV:200,uG:150,uF:160,uAmt:510,rm:'Normal',by:'admin',at:'2026-03-01T09:00:00'}]; 
+    localStorage.setItem('mdm_e',JSON.stringify(S.entries)); localStorage.setItem('mdm_s',JSON.stringify(S.stocks)); 
+} 
+</script>
+</body>
+</html>
